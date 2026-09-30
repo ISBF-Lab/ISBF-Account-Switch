@@ -22,6 +22,12 @@ after_initialize do
     end
   end
 
+  require_relative "app/models/isbf_account_switch/account_link"
+  require_relative "app/models/isbf_account_switch/audit_event"
+  require_relative "app/models/isbf_account_switch/device_grant"
+  require_relative "app/services/isbf_account_switch/device_authorizer"
+  require_relative "app/controllers/isbf_account_switch/accounts_controller"
+  require_relative "app/controllers/isbf_account_switch/admin/links_controller"
 
   IsbfAccountSwitch::Engine.routes.draw do
     get "/accounts" => "accounts#index"
