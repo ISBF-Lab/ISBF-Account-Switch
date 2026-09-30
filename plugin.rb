@@ -12,14 +12,16 @@ enabled_site_setting :isbf_account_switch_enabled
 module ::IsbfAccountSwitch
   PLUGIN_NAME = "isbf-account-switch"
   DEVICE_COOKIE = "isbf_account_switch_device"
-
-  class Engine < ::Rails::Engine
-    engine_name PLUGIN_NAME
-    isolate_namespace IsbfAccountSwitch
-  end
 end
 
 after_initialize do
+  module ::IsbfAccountSwitch
+    class Engine < ::Rails::Engine
+      engine_name PLUGIN_NAME
+      isolate_namespace IsbfAccountSwitch
+    end
+  end
+
 
   IsbfAccountSwitch::Engine.routes.draw do
     get "/accounts" => "accounts#index"
