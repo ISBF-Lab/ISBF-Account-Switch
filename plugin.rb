@@ -8,6 +8,7 @@
 # required_version: 3.2.0
 
 enabled_site_setting :isbf_account_switch_enabled
+add_admin_route "isbf_account_switch.admin.title", "isbf-account-switch", use_new_show_route: true
 
 module ::IsbfAccountSwitch
   PLUGIN_NAME = "isbf-account-switch"
