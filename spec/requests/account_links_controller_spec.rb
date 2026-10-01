@@ -17,14 +17,16 @@ RSpec.describe IsbfAccountSwitch::AccountsController do
     IsbfAccountSwitch::AccountLink.last
   end
 
-  it "requires the target and an administrator to approve a pair" do
+  it "requires administrator approval without target confirmation" do
     link = create_link
-    expect(response.status).to eq(200)
-    expect(link).to be_pending_target
 
-    sign_in(target)
-    put "/isbf/account-switch/links/#{link.id}/confirm.json"
     expect(response.status).to eq(200)
+    expect(link).to be_pending_admin
+    expect(response.parsed_body["link"]["status"]).to eq("pending_admin")
+
+    sign_in(stranger)
+    put "/isbf/account-switch/admin/links/#{link.id}/approve.json"
+    expect(response.status).to eq(403)
     expect(link.reload).to be_pending_admin
 
     sign_in(admin)
@@ -33,12 +35,9 @@ RSpec.describe IsbfAccountSwitch::AccountsController do
     expect(link.reload).to be_approved
   end
 
-  it "does not let a third user confirm or revoke a link" do
+  it "does not let a third user revoke a link" do
     link = create_link
     sign_in(stranger)
-
-    put "/isbf/account-switch/links/#{link.id}/confirm.json"
-    expect(response.status).to eq(403)
 
     delete "/isbf/account-switch/links/#{link.id}.json"
     expect(response.status).to eq(403)

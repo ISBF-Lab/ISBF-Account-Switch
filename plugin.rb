@@ -33,7 +33,6 @@ after_initialize do
   IsbfAccountSwitch::Engine.routes.draw do
     get "/accounts" => "accounts#index"
     post "/links" => "accounts#create"
-    put "/links/:id/confirm" => "accounts#confirm"
     delete "/links/:id" => "accounts#revoke"
     post "/links/:id/verify" => "accounts#verify"
     post "/links/:id/switch" => "accounts#switch"

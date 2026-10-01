@@ -1,6 +1,6 @@
 # ISBF Account Switch
 
-Discourse plugin for pairwise account linking with target confirmation, administrator approval, per-device verification, direct switching through native Discourse sessions, revocation, and audit records.
+Discourse plugin for pairwise account linking with administrator approval, per-device verification, direct switching through native Discourse sessions, revocation, and audit records.
 
 ## Security model
 
