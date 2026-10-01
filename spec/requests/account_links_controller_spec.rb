@@ -10,6 +10,9 @@ RSpec.describe IsbfAccountSwitch::AccountsController do
 
   it "opens the approval page directly for an administrator" do
     sign_in(admin)
+    Discourse.stubs(:plugins_sorted_by_name).returns(
+      [Discourse.plugins_by_name["isbf-account-switch"]]
+    )
 
     get "/admin/plugins/isbf-account-switch/links"
 
