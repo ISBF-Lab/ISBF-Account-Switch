@@ -47,6 +47,8 @@ after_initialize do
   end
 
   Discourse::Application.routes.append do
+    get "/admin/plugins/isbf-account-switch/links" => "admin/plugins#index",
+        :constraints => AdminConstraint.new
     mount ::IsbfAccountSwitch::Engine, at: "/isbf/account-switch"
   end
 

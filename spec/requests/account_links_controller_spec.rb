@@ -8,6 +8,23 @@ RSpec.describe IsbfAccountSwitch::AccountsController do
 
   before { SiteSetting.isbf_account_switch_enabled = true }
 
+  it "opens the approval page directly for an administrator" do
+    sign_in(admin)
+
+    get "/admin/plugins/isbf-account-switch/links"
+
+    expect(response.status).to eq(200)
+    expect(response.media_type).to eq("text/html")
+  end
+
+  it "does not expose the approval page to an ordinary user" do
+    sign_in(requester)
+
+    get "/admin/plugins/isbf-account-switch/links"
+
+    expect(response.status).to eq(404)
+  end
+
   def create_link
     sign_in(requester)
     post "/isbf/account-switch/links.json",
