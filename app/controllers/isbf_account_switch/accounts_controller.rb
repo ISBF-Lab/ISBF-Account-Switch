@@ -39,7 +39,7 @@ module IsbfAccountSwitch
           AccountLink.new(user_a_id: user_a_id, user_b_id: user_b_id)
       link.assign_attributes(
         requester_id: current_user.id,
-        status: :pending_target,
+        status: :pending_admin,
         approved_by_id: nil,
         approved_at: nil,
         rejected_by_id: nil,
@@ -57,22 +57,6 @@ module IsbfAccountSwitch
       render json: { link: serialize_link(link.reload) }
     rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
       render_error(:link_exists)
-    end
-
-    def confirm
-      link = participant_link
-      unless link.pending_target? && link.target_user.id == current_user.id
-        return render_error(:invalid_link, status: :forbidden)
-      end
-
-      link.update!(status: :pending_admin)
-      AuditEvent.record!(
-        action: "target_confirmed",
-        link: link,
-        actor: current_user,
-        request: request
-      )
-      render json: { link: serialize_link(link.reload) }
     end
 
     def revoke
@@ -228,8 +212,6 @@ module IsbfAccountSwitch
         id: link.id,
         status: link.status,
         requester_id: link.requester_id,
-        needs_current_user_confirmation:
-          link.pending_target? && link.target_user.id == current_user.id,
         device_authorized:
           link.approved? &&
             DeviceAuthorizer.authorized?(

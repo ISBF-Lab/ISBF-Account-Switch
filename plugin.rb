@@ -33,7 +33,6 @@ after_initialize do
   IsbfAccountSwitch::Engine.routes.draw do
     get "/accounts" => "accounts#index"
     post "/links" => "accounts#create"
-    put "/links/:id/confirm" => "accounts#confirm"
     delete "/links/:id" => "accounts#revoke"
     post "/links/:id/verify" => "accounts#verify"
     post "/links/:id/switch" => "accounts#switch"
@@ -48,6 +47,8 @@ after_initialize do
   end
 
   Discourse::Application.routes.append do
+    get "/admin/plugins/isbf-account-switch/links" => "admin/plugins#index",
+        :constraints => AdminConstraint.new
     mount ::IsbfAccountSwitch::Engine, at: "/isbf/account-switch"
   end
 

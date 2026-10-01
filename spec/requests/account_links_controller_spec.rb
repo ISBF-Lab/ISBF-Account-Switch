@@ -8,6 +8,26 @@ RSpec.describe IsbfAccountSwitch::AccountsController do
 
   before { SiteSetting.isbf_account_switch_enabled = true }
 
+  it "opens the approval page directly for an administrator" do
+    sign_in(admin)
+    Discourse.stubs(:plugins_sorted_by_name).returns(
+      [Discourse.plugins_by_name["isbf-account-switch"]]
+    )
+
+    get "/admin/plugins/isbf-account-switch/links"
+
+    expect(response.status).to eq(200)
+    expect(response.media_type).to eq("text/html")
+  end
+
+  it "does not expose the approval page to an ordinary user" do
+    sign_in(requester)
+
+    get "/admin/plugins/isbf-account-switch/links"
+
+    expect(response.status).to eq(404)
+  end
+
   def create_link
     sign_in(requester)
     post "/isbf/account-switch/links.json",
@@ -17,14 +37,16 @@ RSpec.describe IsbfAccountSwitch::AccountsController do
     IsbfAccountSwitch::AccountLink.last
   end
 
-  it "requires the target and an administrator to approve a pair" do
+  it "requires administrator approval without target confirmation" do
     link = create_link
-    expect(response.status).to eq(200)
-    expect(link).to be_pending_target
 
-    sign_in(target)
-    put "/isbf/account-switch/links/#{link.id}/confirm.json"
     expect(response.status).to eq(200)
+    expect(link).to be_pending_admin
+    expect(response.parsed_body["link"]["status"]).to eq("pending_admin")
+
+    sign_in(stranger)
+    put "/isbf/account-switch/admin/links/#{link.id}/approve.json"
+    expect(response.status).to eq(403)
     expect(link.reload).to be_pending_admin
 
     sign_in(admin)
@@ -33,12 +55,9 @@ RSpec.describe IsbfAccountSwitch::AccountsController do
     expect(link.reload).to be_approved
   end
 
-  it "does not let a third user confirm or revoke a link" do
+  it "does not let a third user revoke a link" do
     link = create_link
     sign_in(stranger)
-
-    put "/isbf/account-switch/links/#{link.id}/confirm.json"
-    expect(response.status).to eq(403)
 
     delete "/isbf/account-switch/links/#{link.id}.json"
     expect(response.status).to eq(403)
